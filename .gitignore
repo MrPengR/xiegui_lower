@@ -1,0 +1,9 @@
+.cproject
+.mxproject
+.project
+CMakeLists_template.txt
+
+Debug
+.settings
+.idea
+cmake-build-debug
