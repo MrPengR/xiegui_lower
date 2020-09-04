@@ -100,8 +100,11 @@ int8_t stepperStop(Stepper *stepper);
 
 void stepperTurnAngles(Stepper *stepper, int32_t angles);
 
-int8_t calibStepperTransmissionRatio(Stepper *stepper);
+void stepperTurnSteps(Stepper *stepper, int32_t steps);
 
-Stepper * getOneMotor(void);
+//int8_t calibStepperTransmissionRatio(Stepper *stepper);
+void stepperUpdateSteps(Stepper *stepper[], TIM_HandleTypeDef *htim);
+
+Stepper *getOneMotor(void);
 
 #endif //TEMPLATE_WITH_UART_STEPPER_H

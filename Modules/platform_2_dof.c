@@ -8,12 +8,13 @@
 //    Stepper * motor_x = getOneMotor();
 //}
 
-void moveToXY(Platform2DOF *platform_2dof, uint32_t x, uint32_t y) {
+void platformMoveToXY(Platform2DOF *platform_2dof, uint32_t x, uint32_t y) {
+    // todo: create two threads to start the moving
     motorTurnAngles(platform_2dof->motor_x, 123);
     motorTurnAngles(platform_2dof->motor_y, 123);
 }
 
-void initPlatform2DOF(Platform2DOF * platform_2dof) {
+void platformInit(Platform2DOF * platform_2dof) {
     motorTurnAngles = stepperTurnAngles;
 }
 

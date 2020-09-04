@@ -4,7 +4,7 @@
 
 #include "stepper.h"
 
-int8_t getTIM_Handle(TIM_HandleTypeDef *htim, uint8_t timer_name) {
+int8_t getTIM_HandleTypeDef(TIM_HandleTypeDef *htim, uint8_t timer_name) {
     switch (timer_name) {
         case 1:
             htim->Instance = TIM1;
@@ -38,7 +38,7 @@ int8_t getTIM_Handle(TIM_HandleTypeDef *htim, uint8_t timer_name) {
     return 1;
 }
 
-int8_t getGPIO(GPIO_TypeDef *port, uint8_t port_name) {
+int8_t getGPIO_TypeDef(GPIO_TypeDef *port, uint8_t port_name) {
     switch (port_name) {
         case 'A':
             port = GPIOA;
@@ -65,7 +65,7 @@ int8_t stepperStart(Stepper *stepper) {
     TIM_HandleTypeDef htim;
     switch (stepper->status) {
         case STOPPED:
-            getTIM_Handle(&htim, stepper->stepper_hardware.timer_name);
+            getTIM_HandleTypeDef(&htim, stepper->stepper_hardware.timer_name);
             HAL_TIM_OC_Start_IT(&htim, stepper->stepper_hardware.pwm_channel);
             stepper->status = RUNNING;
             break;
@@ -81,7 +81,7 @@ int8_t stepperStop(Stepper *stepper) {
     TIM_HandleTypeDef htim;
     switch (stepper->status) {
         case RUNNING:
-            getTIM_Handle(&htim, stepper->stepper_hardware.timer_name);
+            getTIM_HandleTypeDef(&htim, stepper->stepper_hardware.timer_name);
             HAL_TIM_OC_Stop_IT(&htim, stepper->stepper_hardware.pwm_channel);
             stepper->status = STOPPED;
             break;
@@ -98,7 +98,7 @@ int8_t stepperDisable(Stepper *stepper) {
     if (stepper->status != DISABLED) {
         // To disable a stepper, stop it first
         stepperStop(stepper);
-        getGPIO(&port, stepper->stepper_hardware.ena.port);
+        getGPIO_TypeDef(&port, stepper->stepper_hardware.ena.port);
         HAL_GPIO_WritePin(&port, stepper->stepper_hardware.ena.pin, GPIO_PIN_RESET);
         stepper->status = DISABLED;
     }
@@ -109,7 +109,7 @@ int8_t stepperEnable(Stepper *stepper) {
     GPIO_TypeDef port;
     if (stepper->status == DISABLED) {
         // To enable a stepper, stop it after enabled
-        getGPIO(&port, stepper->stepper_hardware.ena.port);
+    	getGPIO_TypeDef(&port, stepper->stepper_hardware.ena.port);
         HAL_GPIO_WritePin(&port, stepper->stepper_hardware.ena.pin, GPIO_PIN_SET);
         stepperStop(stepper);
         stepper->status = STOPPED;
@@ -119,7 +119,7 @@ int8_t stepperEnable(Stepper *stepper) {
 
 int8_t stepperChangeDirection(Stepper *stepper, enumStepperDirection direction) {
     GPIO_TypeDef port;
-    getGPIO(&port, stepper->stepper_hardware.dir.port);
+    getGPIO_TypeDef(&port, stepper->stepper_hardware.dir.port);
     switch (direction) {
         case CW:
             HAL_GPIO_WritePin(&port, stepper->stepper_hardware.dir.pin, GPIO_PIN_SET);
@@ -133,40 +133,58 @@ int8_t stepperChangeDirection(Stepper *stepper, enumStepperDirection direction) 
     return 1;
 }
 
-int8_t turnSteps(Stepper *stepper, uint16_t steps) {
+void stepperTurnSteps(Stepper *stepper, int32_t steps) {
 
 }
+
+
+void stepperTurnAngles(Stepper *stepper, int32_t angles) {
+
+}
+
 
 int8_t stepperChangeSpeedSpr(Stepper *stepper, uint16_t spr) {
     //todo
 }
 
-int8_t stepperStartReachLimitIt(Stepper *stepper) {
-
-}
-
-int8_t stepperReachMinLimit(Stepper *stepper) {
-
-    stepper->reach_min = 1;
-    stepperStop(stepper);
-}
-
-int8_t calibStepperTransmissionRatio(Stepper *stepper) {
-
-
-    stepperChangeSpeedSpr(stepper, 5);         // change to a very low speed
-    stepperChangeDirection(stepper, CW);   // start from run CW
-    stepperStart(stepper);
-    while (1) {
-        if (stepper->reach_min) {
-            stepper->cur_steps = 0;
-            break;
-        } else if (stepper->reach_max) {
+void stepperUpdateSteps(Stepper *stepper[], TIM_HandleTypeDef *htim) {
+    TIM_HandleTypeDef tmp_htim;
+    for (uint8_t i = 0; i < sizeof(*stepper); i++) {
+    	getTIM_HandleTypeDef(&tmp_htim, stepper[i]->stepper_hardware.timer_name);
+        if (htim == &tmp_htim) {
+            stepper[i]->cur_steps += 1;
             break;
         }
     }
-
 }
+
+
+//int8_t stepperStartReachLimitIt(Stepper *stepper) {
+//
+//}
+//
+//int8_t stepperReachMinLimit(Stepper *stepper) {
+//
+//    stepper->reach_min = 1;
+//    stepperStop(stepper);
+//}
+
+//int8_t calibStepperTransmissionRatio(Stepper *stepper) {
+//
+//
+//    stepperChangeSpeedSpr(stepper, 5);         // change to a very low speed
+//    stepperChangeDirection(stepper, CW);   // start from run CW
+//    stepperStart(stepper);
+//    while (1) {
+//        if (stepper->reach_min) {
+//            stepper->cur_steps = 0;
+//            break;
+//        } else if (stepper->reach_max) {
+//            break;
+//        }
+//    }
+//
+//}
 
 
 int8_t stepperModifyCurSteps(Stepper *stepper) {

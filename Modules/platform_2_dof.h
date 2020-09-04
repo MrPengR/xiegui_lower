@@ -6,7 +6,8 @@
 #define TEST_STEPPER_PLATFORM_2DOF_H
 
 #include "stm32f1xx_hal.h"
-#include "stepper.h"
+#include "cmsis_os.h"
+//#include "stepper.h"
 
 void *MotorType;
 
@@ -21,8 +22,17 @@ typedef struct _Platform2DOF {
 
 //void registerMotors(void);
 
-void moveToXY(Platform2DOF *platform_2dof, uint32_t x, uint32_t y);
+void platformMoveToXY(Platform2DOF *platform_2dof, uint32_t x, uint32_t y);
 
-void initPlatform2DOF(Platform2DOF * platform_2dof);
+void platformInit(Platform2DOF * platform_2dof);
+
+
+/**
+ * 2 dof platform threads
+ */
+static const osThreadAttr_t attr_platform_moving;
+__NO_RETURN void threadPlatformMoving ();
+
+
 
 #endif //TEST_STEPPER_PLATFORM_2DOF_H
